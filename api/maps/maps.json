@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Bagel",
+    "path": "Bagel/Bagel-",
+    "index": 0,
+    "within_bounds_boxes": []
+  },
+  {
+    "name": "Box",
+    "path": "Box/Box-",
+    "index": 0,
+    "within_bounds_boxes": []
+  },
+  {
+    "name": "Fland",
+    "path": "Fland/Fland-",
+    "index": 0,
+    "within_bounds_boxes": []
+  },
+  {
+    "name": "Marathon",
+    "path": "Marathon/Marathon-",
+    "index": 0,
+    "within_bounds_boxes": []
+  },
+  {
+    "name": "Oasis",
+    "path": "Oasis/Oasis-",
+    "index": 0,
+    "within_bounds_boxes": []
+  },
+  {
+    "name": "Oasis Brig",
+    "path": "Oasis/Oasis-",
+    "index": 1,
+    "within_bounds_boxes": []
+  },
+  {
+    "name": "Plasma",
+    "path": "Plasma/Plasma-",
+    "index": 0,
+    "within_bounds_boxes": []
+  },
+  {
+    "name": "Reach",
+    "path": "Reach/Reach-",
+    "index": 0,
+    "within_bounds_boxes": []
+  }
+]
