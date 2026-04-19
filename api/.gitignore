@@ -1,2 +1,4 @@
 maps/*
 !maps/maps.json
+.idea
+ss14mapdle
