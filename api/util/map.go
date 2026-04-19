@@ -13,6 +13,7 @@ import (
 const ZoomMultiplier float32 = 1.2
 const StartWidth = 100
 const StartHeight = 100
+const MaxZoomLevel = 6
 
 func readImage(path string) (*image.Image, error) {
 	fd, err := os.Open(path)
@@ -93,6 +94,12 @@ func GetMapPathAtLevel(mapName string, mapPath string, index int, x int, y int, 
 		return nil, err
 	}
 
+	fullPath := path.Join(mapBasePath, imageFullPath)
+
+	if z == -1 {
+		z = 10
+	}
+
 	cacheBase := path.Join(mapBasePath, "cache")
 	cachePath := path.Join(cacheBase, imageAtLevelName)
 
@@ -101,8 +108,6 @@ func GetMapPathAtLevel(mapName string, mapPath string, index int, x int, y int, 
 	if os.IsExist(err) {
 		return &cachePath, nil
 	}
-
-	fullPath := path.Join(mapBasePath, imageFullPath)
 
 	img, err := readImage(fullPath)
 

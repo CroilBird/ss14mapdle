@@ -1,0 +1,10 @@
+body {
+    background-color: #26262c;
+    color: white;
+}
+
+input,
+select,
+textarea {
+    color: white;
+}

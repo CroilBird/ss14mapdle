@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <title>SS14 Mapdle!</title>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row center-align">
+            <h3>Guess the SS14 map</h3>
+        </div>
+        <div id="result" class="card-panel blue center-align" style="visibility: hidden; font-size: 16pt;"></div>
+        <div id="guessIndicator" class="center-align" style="font-size: 32pt;"></div>
+        <div id="mapImageDiv" class="center-align">
+            <img id="mapImage" style="width: 60%; image-rendering: crisp-edges;">
+        </div>
+        <div class="row center-align" id="controlRow">
+            <input type="text" placeholder="Type your guess here" id="guessText" style="color: white;">
+            <button class="btn btn-large green" id="guessBtn" style="width: 100%; font-size: 16pt;">Guess</button>
+        </div>
+    </div>
+
+</body>
+
+<script src="index.js"></script>
+
+</html>
