@@ -2,6 +2,7 @@ package functions
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"log/slog"
 	"math/rand/v2"
 	"ss14mapdle/db"
@@ -13,24 +14,15 @@ import (
 var GenerateChallengeFunctionName FunctionName = "generate-challenge"
 
 func init() {
-	AddFunction(GenerateChallengeFunctionName, generateChallenge, "Generate a new ss14 mapdle challenge")
+	AddFunction(GenerateChallengeFunctionName, generateChallengeFunction, "Generate a new ss14 mapdle challenge")
 }
 
 func randRange(min, max int) int {
 	return rand.IntN(max-min) + min
 }
 
-func generateChallenge(params []string) {
-	slog.Info("Generating SS14 mapdle challenge")
-
-	dbConnection, err := db.Connect()
-
-	if err != nil {
-		slog.Error("[main] Could not connect to database", "error", err.Error())
-		return
-	}
-
-	randomMap, err := models.GetRandomMap(dbConnection)
+func GenerateChallenge(db *gorm.DB) {
+	randomMap, err := models.GetRandomMap(db)
 
 	if err != nil {
 		slog.Error("Could not select random map", "error", err.Error())
@@ -54,10 +46,23 @@ func generateChallenge(params []string) {
 		GeneratedAt: time.Now(),
 	}
 
-	err = dbConnection.Create(&challenge).Error
+	err = db.Create(&challenge).Error
 
 	if err != nil {
 		slog.Error("Could not create challenge", "error", err.Error())
 		return
 	}
+}
+
+func generateChallengeFunction(params []string) {
+	slog.Info("Generating SS14 mapdle challenge")
+
+	dbConnection, err := db.Connect()
+
+	if err != nil {
+		slog.Error("[main] Could not connect to database", "error", err.Error())
+		return
+	}
+
+	GenerateChallenge(dbConnection)
 }

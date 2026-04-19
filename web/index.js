@@ -43,14 +43,14 @@ function humanReadableTimeDiff(diff) {
 // idk it's pure javascript leave me alone
 let getCurrentChallengeImage = () => {
     let x = new XMLHttpRequest();
-    x.open('GET', 'http://localhost:8000/challenge/' + lastSessionGuid);
+    x.open('GET', 'https://ss14mapdle-api.croil.net/challenge/' + lastSessionGuid);
     // x.responseType = 'blob';
     x.addEventListener('readystatechange', function () {
         if (this.readyState == 4) {
             switch (this.status) {
                 case 200:
                     sessionInfo = JSON.parse(this.response);
-                    mapImage.setAttribute('src', 'http://localhost:8000/challenge/map/' + lastSessionGuid + '?t=' + Date.now());
+                    mapImage.setAttribute('src', 'https://ss14mapdle-api.croil.net/challenge/map/' + lastSessionGuid + '?t=' + Date.now());
                     guessIndicator.innerHTML = '';
                     for (i = 0; i < guesses - 1; i++) {
                         let elem = document.createElement('span');
@@ -94,7 +94,7 @@ guessBtn.addEventListener('click', () => {
     const guess = guessText.value;
 
     let x = new XMLHttpRequest();
-    x.open('POST', 'http://localhost:8000/guess/' + lastSessionGuid)
+    x.open('POST', 'https://ss14mapdle-api.croil.net/guess/' + lastSessionGuid)
     x.setRequestHeader('content-type', 'application/json')
 
     x.addEventListener('readystatechange', function () {
