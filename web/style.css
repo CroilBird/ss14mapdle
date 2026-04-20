@@ -8,3 +8,7 @@ select,
 textarea {
     color: white;
 }
+
+.image-bg {
+    background-image: url('space.png');
+}
