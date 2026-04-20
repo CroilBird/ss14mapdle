@@ -35,6 +35,21 @@ func init() {
 	Models = append(Models, Map{})
 }
 
+func GetMap(db *gorm.DB, mapName string) (*Map, error) {
+	var selectedMap Map
+
+	err := db.Table("maps").
+		Where("name = ?", mapName).
+		Find(&selectedMap).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &selectedMap, nil
+}
+
 func GetRandomMap(db *gorm.DB) (*Map, error) {
 	var randomMap Map
 

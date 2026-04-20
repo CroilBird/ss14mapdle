@@ -90,8 +90,41 @@ let getCurrentChallengeImage = () => {
 
 getCurrentChallengeImage();
 
+const options = {
+    "bagel": null,
+    "box": null,
+    "cache": null,
+    "elkridge": null,
+    "exo": null,
+    "fland": null,
+    "marathon": null,
+    "oasis": null,
+    "oasis brig": null,
+    "packed": null,
+    "plasma": null,
+    "reach": null,
+    "saltern": null,
+    "serpentcrest": null,
+    "snowball": null,
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    var elems = document.querySelectorAll('.autocomplete');
+    var instances = M.Autocomplete.init(elems, {
+        data: options
+    });
+});
+
 guessBtn.addEventListener('click', () => {
-    const guess = guessText.value;
+    const guess = guessText.value.toLowerCase();
+
+    if (!(guess in options)) {
+        result.setAttribute('class', 'card-panel green center-align')
+        result.innerText = `${guess} is not a valid map`
+        result.style['visibility'] = 'visible';
+        return;
+    }
+
 
     let x = new XMLHttpRequest();
     x.open('POST', 'https://ss14mapdle-api.croil.net/guess/' + lastSessionGuid)

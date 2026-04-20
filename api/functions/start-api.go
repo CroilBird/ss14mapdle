@@ -34,7 +34,7 @@ func newChallengeGenerator(db *gorm.DB) {
 
 		if challengeCount == 0 {
 			slog.Info("Generating new challenge")
-			GenerateChallenge(db)
+			GenerateChallenge(db, "")
 			slog.Info("Generated new challenge")
 			continue
 		}
@@ -47,7 +47,7 @@ func newChallengeGenerator(db *gorm.DB) {
 		}
 
 		slog.Info("Generating new challenge")
-		GenerateChallenge(db)
+		GenerateChallenge(db, "")
 		slog.Info("Generated new challenge")
 	}
 }

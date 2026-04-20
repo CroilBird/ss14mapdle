@@ -21,20 +21,31 @@ func randRange(min, max int) int {
 	return rand.IntN(max-min) + min
 }
 
-func GenerateChallenge(db *gorm.DB) {
-	randomMap, err := models.GetRandomMap(db)
+func GenerateChallenge(db *gorm.DB, forceMap string) {
+	var selectedMap *models.Map
+	var err error
+
+	if forceMap == "" {
+		selectedMap, err = models.GetRandomMap(db)
+	} else {
+		selectedMap, err = models.GetMap(db, forceMap)
+	}
 
 	if err != nil {
-		slog.Error("Could not select random map", "error", err.Error())
+		slog.Error("Could not select map", "error", err.Error())
 		return
 	}
 
-	slog.Info(fmt.Sprintf("Selected random map: %s", randomMap.Name))
+	slog.Info(fmt.Sprintf("Selected map: %s", selectedMap.Name))
+
+	slog.Info(fmt.Sprintf("Map dimensions: %dx%d", selectedMap.Width, selectedMap.Height))
 
 	minX := util.StartWidth / 2
-	maxX := int(randomMap.Width - util.StartWidth/2)
+	maxX := int(selectedMap.Width - util.StartWidth/2)
 	minY := util.StartHeight / 2
-	maxY := int(randomMap.Height - util.StartHeight/2)
+	maxY := int(selectedMap.Height - util.StartHeight/2)
+
+	slog.Info(fmt.Sprintf("Random bounds - Min: x%d y%d - Max x%d y%d", minX, minY, maxX, maxY))
 
 	x := randRange(minX, maxX)
 	y := randRange(minY, maxY)
@@ -42,7 +53,7 @@ func GenerateChallenge(db *gorm.DB) {
 	challenge := models.Challenge{
 		X:           x,
 		Y:           y,
-		MapID:       randomMap.ID,
+		MapID:       selectedMap.ID,
 		GeneratedAt: time.Now(),
 	}
 
@@ -64,5 +75,11 @@ func generateChallengeFunction(params []string) {
 		return
 	}
 
-	GenerateChallenge(dbConnection)
+	forceMap := ""
+
+	if len(params) > 0 {
+		forceMap = params[0]
+	}
+
+	GenerateChallenge(dbConnection, forceMap)
 }

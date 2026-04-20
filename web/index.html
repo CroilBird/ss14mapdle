@@ -21,10 +21,14 @@
         <div id="result" class="card-panel blue center-align" style="visibility: hidden; font-size: 16pt;"></div>
         <div id="guessIndicator" class="center-align" style="font-size: 32pt;"></div>
         <div id="mapImageDiv" class="center-align">
-            <img id="mapImage" style="width: 60%; image-rendering: crisp-edges;">
+            <img id="mapImage" style="width: 50vh; height: 50vh; image-rendering: crisp-edges;">
         </div>
         <div class="row center-align" id="controlRow">
-            <input type="text" placeholder="Type your guess here" id="guessText" style="color: white;">
+            <div class="input-field col s12">
+                <input type="text" class="autocomplete" placeholder="Type your guess here" id="guessText"
+                    style="color: white;">
+                <label for="guessText">Da map</label>
+            </div>
             <button class="btn btn-large green" id="guessBtn" style="width: 100%; font-size: 16pt;">Guess</button>
         </div>
     </div>
