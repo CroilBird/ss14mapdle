@@ -43,14 +43,14 @@ function humanReadableTimeDiff(diff) {
 // idk it's pure javascript leave me alone
 let getCurrentChallengeImage = () => {
     let x = new XMLHttpRequest();
-    x.open('GET', 'https://ss14mapdle-api.croil.net/challenge/' + lastSessionGuid);
+    x.open('GET', 'http://localhost:8000/challenge/' + lastSessionGuid);
     // x.responseType = 'blob';
     x.addEventListener('readystatechange', function () {
         if (this.readyState == 4) {
             switch (this.status) {
                 case 200:
                     sessionInfo = JSON.parse(this.response);
-                    mapImage.setAttribute('src', 'https://ss14mapdle-api.croil.net/challenge/map/' + lastSessionGuid + '?t=' + Date.now());
+                    mapImage.setAttribute('src', 'http://localhost:8000/challenge/map/' + lastSessionGuid + '?t=' + Date.now());
                     guessIndicator.innerHTML = '';
                     for (i = 0; i < guesses - 1; i++) {
                         let elem = document.createElement('span');
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-guessBtn.addEventListener('click', () => {
+let validateGuess = () => {
     const guess = guessText.value.toLowerCase();
 
     if (!(guess in options)) {
@@ -127,11 +127,12 @@ guessBtn.addEventListener('click', () => {
 
 
     let x = new XMLHttpRequest();
-    x.open('POST', 'https://ss14mapdle-api.croil.net/guess/' + lastSessionGuid)
+    x.open('POST', 'http://localhost:8000/guess/' + lastSessionGuid)
     x.setRequestHeader('content-type', 'application/json')
 
     x.addEventListener('readystatechange', function () {
         if (this.readyState == 4) {
+            guessText.value = '';
             switch (this.status) {
                 case 200:
                     var data = JSON.parse(this.response)
@@ -152,4 +153,13 @@ guessBtn.addEventListener('click', () => {
         "name": guess
     }));
 
+};
+
+guessBtn.addEventListener('click', validateGuess);
+
+guessText.addEventListener('keypress', (ev) => {
+    if (ev.keyCode === 13) {
+        validateGuess();
+    }
 });
+

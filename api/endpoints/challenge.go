@@ -1,6 +1,7 @@
 package endpoints
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -184,73 +185,85 @@ func guess(db *gorm.DB, c *gin.Context) {
 
 	var currentChallenge models.Challenge
 
-	err = db.Table("challenges").Preload("Map").Last(&currentChallenge).Error
+	err = db.Transaction(func(tx *gorm.DB) error {
+		var transactionError error
 
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "could not find challenge"})
-		return
-	}
+		transactionError = db.Table("challenges").Preload("Map").Last(&currentChallenge).Error
 
-	var session models.Session
-
-	err = db.Where("guid = ?", sessionGuid).Find(&session).Error
-
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "could not retrieve session"})
-		return
-	}
-
-	if session.ID == 0 {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-
-	if currentChallenge.Id != session.ChallengeID {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "session-challenge mismatch"})
-		return
-	}
-
-	if session.ZoomLevel > util.MaxZoomLevel {
-		c.JSON(http.StatusOK, gin.H{"correct": false, "message": "You can't guess again"})
-		return
-	}
-
-	if strings.ToLower(currentChallenge.Map.Name) != strings.ToLower(request.Name) {
-		newZoomLevel := session.ZoomLevel + 1
-
-		err = db.Table("sessions").
-			Where("guid = ?", sessionGuid).
-			Update("zoom_level", newZoomLevel).
-			Error
-
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "could not update session"})
-			return
+		if transactionError != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "could not find challenge"})
+			return transactionError
 		}
 
-		if newZoomLevel <= util.MaxZoomLevel-1 {
-			c.JSON(http.StatusOK, gin.H{"correct": false, "message": "Wrong! Try again", "guesses_remaining": util.MaxZoomLevel - newZoomLevel + 1})
-		} else {
-			c.JSON(http.StatusOK, gin.H{
-				"correct": false,
-				"message": fmt.Sprintf("Wrong! The correct map was: %s. Try again tomorrow", currentChallenge.Map.Name),
-			})
+		var session models.Session
+
+		transactionError = db.Where("guid = ?", sessionGuid).Find(&session).Error
+
+		if transactionError != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "could not retrieve session"})
+			return transactionError
 		}
 
-		return
-	}
+		if session.ID == 0 {
+			c.AbortWithStatus(http.StatusNotFound)
+			return errors.New("no session found")
+		}
 
-	session.Correct = true
+		if currentChallenge.Id != session.ChallengeID {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "session-challenge mismatch"})
+			return errors.New("challenge session mismatch")
+		}
 
-	err = db.Save(session).Error
+		if session.ZoomLevel > util.MaxZoomLevel {
+			c.JSON(http.StatusOK, gin.H{"correct": false, "message": "You can't guess again"})
+			return errors.New("tried to guess beyond limit")
+		}
 
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Could not save successful guess"})
-		return
-	}
+		if strings.ToLower(currentChallenge.Map.Name) != strings.ToLower(request.Name) {
+			newZoomLevel := session.ZoomLevel + 1
 
-	c.JSON(http.StatusOK, gin.H{
-		"correct": true,
-		"message": fmt.Sprintf("Correct! The map is %s", currentChallenge.Map.Name),
+			transactionError = db.Table("sessions").
+				Where("guid = ?", sessionGuid).
+				Update("zoom_level", newZoomLevel).
+				Error
+
+			if transactionError != nil {
+				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "could not update session"})
+				return transactionError
+			}
+
+			if newZoomLevel <= util.MaxZoomLevel-1 {
+				c.JSON(http.StatusOK, gin.H{"correct": false, "message": "Wrong! Try again", "guesses_remaining": util.MaxZoomLevel - newZoomLevel + 1})
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"correct": false,
+					"message": fmt.Sprintf("Wrong! The correct map was: %s. Try again tomorrow", currentChallenge.Map.Name),
+				})
+			}
+
+			return nil
+		}
+
+		session.Correct = true
+
+		transactionError = db.Save(session).Error
+
+		if transactionError != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Could not save successful guess"})
+			return transactionError
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"correct": true,
+			"message": fmt.Sprintf("Correct! The map is %s", currentChallenge.Map.Name),
+		})
+
+		return nil
 	})
+
+	if err != nil {
+		slog.Error(err.Error())
+	}
+
+	return
 }
